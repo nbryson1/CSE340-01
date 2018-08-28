@@ -10,6 +10,7 @@
 #include <string>
 
 #include "inputbuf.h"
+#include <list>
 
 // ------- token types -------------------
 
@@ -18,6 +19,23 @@ typedef enum { END_OF_FILE = 0,
     DOT, ID, ERROR, INPUT_TEXT, HASH,
     CHAR, UNDERSCORE, OR, SYMBOL, STAR // TODO: Add labels for new token types here
 } TokenType;
+
+struct REG_node{
+    struct REG_node * first_neighbor;
+    char first_label;
+    struct REG_node * second_neighbor;
+    char second_label;
+};
+
+struct REG{
+    struct REG_node * start;
+    struct REG_node * accept;
+};
+
+struct list{
+    std::string token_name;
+    std::string * reg_node;
+};
 
 class Token {
   public:
@@ -44,6 +62,18 @@ class LexicalAnalyzer {
     Token ScanInput();
     Token ScanSymbol();
     Token ScanIdOrChar();
+
+};
+
+
+class myLexicalAnalyzer {
+public:
+    Token my_getToken();
+    std::string match(REG_node, std::string, std::string);
+
+private:
+    std::list<REG_node> tokens;
+    std::string input_string;
 
 };
 

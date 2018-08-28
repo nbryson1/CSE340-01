@@ -263,3 +263,11 @@ Token LexicalAnalyzer::GetToken()
     }
 }
 
+Token myLexicalAnalyzer::my_getToken(){
+    Token t;
+    return t;
+}
+
+std::string myLexicalAnalyzer::match(REG_node, std::string, std::string){
+    return "";
+}
