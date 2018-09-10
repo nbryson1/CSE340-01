@@ -5,12 +5,9 @@
  */
 #include <iostream>
 #include <istream>
-#include <vector>
-#include <string>
 #include <cctype>
 
 #include "lexer.h"
-#include "inputbuf.h"
 
 using namespace std;
 
@@ -263,11 +260,83 @@ Token LexicalAnalyzer::GetToken()
     }
 }
 
-Token myLexicalAnalyzer::my_getToken(){
-    Token t;
-    return t;
+set<RegNode> myLexicalAnalyzer::match_one_char(set<RegNode> S, char c){
+    std::set<RegNode> S1 ;
+    set<RegNode>::iterator it;
+    for (it = S.begin(); it != S.end(); ++it) {
+        if(it->first_label == c && S1.find(*it->first_neighbor) == S1.end()){
+            S1.insert(*it->first_neighbor);
+        }
+        if(it->second_label == c && S1.find(*it->second_neighbor) == S1.end()){
+            S1.insert(*it->second_neighbor);
+        }
+    }
+    if(S1.empty()){
+        return S1;
+    }
+    bool changed = true;
+    std::set<RegNode> S2;
+    while(changed){
+        changed = false;
+        for (it = S1.begin(); it != S1.end(); ++it) {
+            S2.insert(*it);
+            if(it->first_label == '_' && S2.find(*it->first_neighbor) == S2.end()){
+                S2.insert(*it->first_neighbor);
+            }
+            if(it->second_label == '_' && S2.find(*it->second_neighbor) == S2.end()){
+                S2.insert(*it->second_neighbor);
+            }
+        }
+        if(S1 != S2){
+            changed = true;
+            copy(S2.begin(), S2.end(), inserter(S1, S1.begin() ) );
+            S2.clear();
+        }
+    }
+    return S1;
 }
 
-std::string myLexicalAnalyzer::match(REG_node, std::string, std::string){
-    return "";
+int myLexicalAnalyzer::match(REG reg, string input, int position){
+    set<RegNode> So;
+    So.insert(*reg.start);
+    set<RegNode> Sa;
+    Sa = match_one_char(So, '_');
+    So.insert(Sa.begin(), Sa.end());
+    int size = 0;
+    for (std::string::iterator it = input.begin() + position, end = input.end(); it != end; ++it)
+    {
+        size ++;
+        So = match_one_char(So, *it);
+        if(So.find(*reg.accept) != So.end()){
+            return size;
+        }
+    }
+    return 0;
+}
+
+void myLexicalAnalyzer::my_getToken(){
+    int start = 0;
+    set<token_reg>::iterator it;
+    int max = 0;
+    string lex = "";
+    while(start != input_string.size() -1 ) {
+        for (it = tokens_list.begin(); it != tokens_list.end(); ++it) {
+            int lex_size = match(*it->reg, input_string, start);
+            if(lex_size > max){
+                max = lex_size;
+                lex = it->token_name;
+            }
+        }
+        cout<<lex;
+        cout<<input_string.substr(start, max);
+        start += max;
+    }
+}
+
+void myLexicalAnalyzer::setInput_string(const string &input_string) {
+    myLexicalAnalyzer::input_string = input_string;
+}
+
+void myLexicalAnalyzer::setTokens_list(const token_reg &token) {
+    myLexicalAnalyzer::tokens_list.insert(token);
 }

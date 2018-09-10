@@ -6,12 +6,12 @@
 #ifndef __PARSER_H__
 #define __PARSER_H__
 
-#include <string>
 #include "lexer.h"
 
 class Parser {
   private:
     LexicalAnalyzer lexer;
+    myLexicalAnalyzer mylexer;
 
     void syntax_error();
     Token expect(TokenType expected_type);
@@ -23,8 +23,7 @@ class Parser {
     void parse_tokens_section();
     void parse_token_list();
     void parse_token();
-    void parse_expr();
-
+    struct REG * parse_expr();
 
   public:
     void ParseProgram();

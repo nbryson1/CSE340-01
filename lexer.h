@@ -7,10 +7,9 @@
 #define __LEXER__H__
 
 #include <vector>
-#include <string>
 
 #include "inputbuf.h"
-#include <list>
+#include <set>
 
 // ------- token types -------------------
 
@@ -20,22 +19,22 @@ typedef enum { END_OF_FILE = 0,
     CHAR, UNDERSCORE, OR, SYMBOL, STAR // TODO: Add labels for new token types here
 } TokenType;
 
-struct REG_node{
-    struct REG_node * first_neighbor;
+typedef struct RegNode{
+    RegNode * first_neighbor;
     char first_label;
-    struct REG_node * second_neighbor;
+    RegNode * second_neighbor;
     char second_label;
-};
+} RegNode;
 
-struct REG{
-    struct REG_node * start;
-    struct REG_node * accept;
-};
+typedef struct REG{
+    RegNode * start;
+    RegNode * accept;
+} REG;
 
-struct list{
+typedef struct token_reg{
     std::string token_name;
-    std::string * reg_node;
-};
+    REG * reg;
+} token_reg;
 
 class Token {
   public:
@@ -65,14 +64,32 @@ class LexicalAnalyzer {
 
 };
 
+bool operator<(const RegNode& n1, const RegNode& n2) {
+    return n1.first_label < n2.first_label;
+}
+
+bool operator==(const RegNode& n1, const RegNode& n2) {
+    return n1.first_label == n2.first_label;
+}
+
+bool operator<(const token_reg& n1, const token_reg& n2) {
+    return n1.token_name < n2.token_name;
+}
+
+bool operator==(const token_reg& n1, const token_reg& n2) {
+    return n1.token_name == n2.token_name;
+}
 
 class myLexicalAnalyzer {
 public:
-    Token my_getToken();
-    std::string match(REG_node, std::string, std::string);
+    void my_getToken();
+    int match(REG, std::string, int);
+    std::set<RegNode> match_one_char(std::set<RegNode> S, char c);
+    void setInput_string(const std::string &input_string);
+    void setTokens_list(const token_reg &token);
 
 private:
-    std::list<REG_node> tokens;
+    std::set<token_reg> tokens_list;
     std::string input_string;
 
 };
