@@ -24,6 +24,12 @@ typedef struct RegNode{
     char first_label;
     RegNode * second_neighbor;
     char second_label;
+    RegNode(){
+        first_label = '\0';
+        second_label = '\0';
+        first_neighbor = nullptr;
+        second_neighbor = nullptr;
+    }
 } RegNode;
 
 typedef struct REG{
@@ -64,29 +70,31 @@ class LexicalAnalyzer {
 
 };
 
-bool operator<(const RegNode& n1, const RegNode& n2) {
+static bool operator<(const RegNode& n1, const RegNode& n2) {
     return n1.first_label < n2.first_label;
 }
 
-bool operator==(const RegNode& n1, const RegNode& n2) {
+static bool operator==(const RegNode& n1, const RegNode& n2) {
     return n1.first_label == n2.first_label;
 }
 
-bool operator<(const token_reg& n1, const token_reg& n2) {
+static bool operator<(const token_reg& n1, const token_reg& n2) {
     return n1.token_name < n2.token_name;
 }
 
-bool operator==(const token_reg& n1, const token_reg& n2) {
+static bool operator==(const token_reg& n1, const token_reg& n2) {
     return n1.token_name == n2.token_name;
 }
 
 class myLexicalAnalyzer {
 public:
     void my_getToken();
-    int match(REG, std::string, int);
+    int match(REG * reg, std::string, int);
     std::set<RegNode> match_one_char(std::set<RegNode> S, char c);
     void setInput_string(const std::string &input_string);
     void setTokens_list(const token_reg &token);
+    const std::set<token_reg> &getTokens_list() const;
+    void print(RegNode * reg);
 
 private:
     std::set<token_reg> tokens_list;

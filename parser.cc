@@ -51,7 +51,15 @@ void Parser::parse_input()
 
     parse_tokens_section();
     Token t = expect(INPUT_TEXT);
-    mylexer.setInput_string(t.lexeme);
+    std::string temp = t.lexeme.substr(1, t.lexeme.size() - 2);
+    if(temp.at(0) == ' '){
+        temp = temp.substr(1, temp.size());
+    }
+    if(temp.at(temp.size() - 1) == ' '){
+        temp = temp.substr(0, temp.size() - 1);
+    }
+    cout << "Input string :" << temp << endl;
+    mylexer.setInput_string(temp);
 }
 
 
@@ -96,6 +104,7 @@ void Parser::parse_token()
     tok.token_name = t.lexeme;
     tok.reg = reg;
     mylexer.setTokens_list(tok);
+//    mylexer.print(reg->start);
 }
 
 
@@ -108,7 +117,6 @@ struct REG * Parser::parse_expr()
     // expr -> UNDERSCORE
 
     Token t = lexer.GetToken();
-//    cout<<t.lexeme;
     if(t.token_type == CHAR){
         // expr -> CHAR
         REG * reg = (REG *)malloc(sizeof(* reg));
@@ -180,7 +188,7 @@ struct REG * Parser::parse_expr()
             reg1->accept = accept;
             return reg1;
         }
-        else if(t2.token_type == HASH){
+        else {
             lexer.UngetToken(t2);
         }
         return reg1;
@@ -189,13 +197,14 @@ struct REG * Parser::parse_expr()
     {
         syntax_error();
     }
+    return nullptr;
 }
 
 
 void Parser::ParseProgram()
 {
     parse_input();
-    expect(END_OF_FILE);
+//    expect(END_OF_FILE);
     mylexer.my_getToken();
 }
 

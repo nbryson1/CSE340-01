@@ -6,6 +6,7 @@
 #include <iostream>
 #include <istream>
 #include <cctype>
+#include <stdio.h>
 
 #include "lexer.h"
 
@@ -261,7 +262,7 @@ Token LexicalAnalyzer::GetToken()
 }
 
 set<RegNode> myLexicalAnalyzer::match_one_char(set<RegNode> S, char c){
-    std::set<RegNode> S1 ;
+    set<RegNode> S1 ;
     set<RegNode>::iterator it;
     for (it = S.begin(); it != S.end(); ++it) {
         if(it->first_label == c && S1.find(*it->first_neighbor) == S1.end()){
@@ -296,9 +297,9 @@ set<RegNode> myLexicalAnalyzer::match_one_char(set<RegNode> S, char c){
     return S1;
 }
 
-int myLexicalAnalyzer::match(REG reg, string input, int position){
+int myLexicalAnalyzer::match(REG * reg, string input, int position){
     set<RegNode> So;
-    So.insert(*reg.start);
+    So.insert(*reg->start);
     set<RegNode> Sa;
     Sa = match_one_char(So, '_');
     So.insert(Sa.begin(), Sa.end());
@@ -306,8 +307,9 @@ int myLexicalAnalyzer::match(REG reg, string input, int position){
     for (std::string::iterator it = input.begin() + position, end = input.end(); it != end; ++it)
     {
         size ++;
+        cout << "Char:" << *it << endl;
         So = match_one_char(So, *it);
-        if(So.find(*reg.accept) != So.end()){
+        if(So.find(*reg->accept) != So.end()){
             return size;
         }
     }
@@ -317,18 +319,22 @@ int myLexicalAnalyzer::match(REG reg, string input, int position){
 void myLexicalAnalyzer::my_getToken(){
     int start = 0;
     set<token_reg>::iterator it;
-    int max = 0;
     string lex = "";
-    while(start != input_string.size() -1 ) {
-        for (it = tokens_list.begin(); it != tokens_list.end(); ++it) {
-            int lex_size = match(*it->reg, input_string, start);
+    while(start != input_string.size() ) {
+        int max = 0;
+        for (it = getTokens_list().begin(); it != getTokens_list().end(); ++it) {
+            cout << "Running token:" << it->token_name << endl;
+            int lex_size = match(it->reg, input_string, start);
             if(lex_size > max){
                 max = lex_size;
                 lex = it->token_name;
             }
         }
-        cout<<lex;
-        cout<<input_string.substr(start, max);
+        if(max == 0){
+            cout << "ERROR";
+            return;
+        }
+        cout << "Final token :" << lex << " " << input_string.substr(start, max) << endl;
         start += max;
     }
 }
@@ -339,4 +345,17 @@ void myLexicalAnalyzer::setInput_string(const string &input_string) {
 
 void myLexicalAnalyzer::setTokens_list(const token_reg &token) {
     myLexicalAnalyzer::tokens_list.insert(token);
+}
+
+const set<token_reg> &myLexicalAnalyzer::getTokens_list() const {
+    return tokens_list;
+}
+
+void myLexicalAnalyzer::print(RegNode * r){
+    if(r->first_neighbor != nullptr && r->second_neighbor != nullptr){
+        cout << "first label:" << r->first_label << endl;
+        cout << "second label:" << r->second_label << endl;
+        myLexicalAnalyzer::print(r->first_neighbor);
+        myLexicalAnalyzer::print(r->first_neighbor);
+    }
 }
