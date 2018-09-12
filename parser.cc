@@ -104,7 +104,6 @@ void Parser::parse_token()
     tok.token_name = t.lexeme;
     tok.reg = reg;
     mylexer.setTokens_list(tok);
-//    mylexer.print(reg->start);
 }
 
 
@@ -132,7 +131,7 @@ struct REG * Parser::parse_expr()
         // expr -> UNDERSCORE
         REG * reg = (REG *)malloc(sizeof(* reg));
         RegNode * regNode1 = (RegNode *)malloc(sizeof(* regNode1));
-        regNode1->first_label = t.lexeme.at(0);
+        regNode1->first_label = '_';
         RegNode * regNode2 = (RegNode *)malloc(sizeof(* regNode2));
         regNode1->first_neighbor = regNode2;
         reg->start = regNode1;

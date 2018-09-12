@@ -7,7 +7,7 @@
 #include <istream>
 #include <cctype>
 #include <stdio.h>
-
+#include <sstream>
 #include "lexer.h"
 
 using namespace std;
@@ -290,7 +290,7 @@ set<RegNode> myLexicalAnalyzer::match_one_char(set<RegNode> S, char c){
         }
         if(S1 != S2){
             changed = true;
-            copy(S2.begin(), S2.end(), inserter(S1, S1.begin() ) );
+            S1.insert(S2.begin(), S2.end());
             S2.clear();
         }
     }
@@ -300,16 +300,21 @@ set<RegNode> myLexicalAnalyzer::match_one_char(set<RegNode> S, char c){
 int myLexicalAnalyzer::match(REG * reg, string input, int position){
     set<RegNode> So;
     So.insert(*reg->start);
+    cout << "So size:" << So.size() << endl;
+    cout << "Char:_" << endl;
     set<RegNode> Sa;
     Sa = match_one_char(So, '_');
     So.insert(Sa.begin(), Sa.end());
+    cout << "So size:" << So.size() << endl;
     int size = 0;
     for (std::string::iterator it = input.begin() + position, end = input.end(); it != end; ++it)
     {
         size ++;
         cout << "Char:" << *it << endl;
         So = match_one_char(So, *it);
+        cout << "So size:" << So.size() << endl;
         if(So.find(*reg->accept) != So.end()){
+            cout << "Return" << endl;
             return size;
         }
     }
@@ -320,22 +325,27 @@ void myLexicalAnalyzer::my_getToken(){
     int start = 0;
     set<token_reg>::iterator it;
     string lex = "";
-    while(start != input_string.size() ) {
-        int max = 0;
-        for (it = getTokens_list().begin(); it != getTokens_list().end(); ++it) {
-            cout << "Running token:" << it->token_name << endl;
-            int lex_size = match(it->reg, input_string, start);
-            if(lex_size > max){
-                max = lex_size;
-                lex = it->token_name;
+    vector<string> splits = split(input_string, ' ');
+    for(int i =0; i < splits.size(); i++) {
+        start = 0;
+        while (start != splits[i].size()) {
+            cout << "Split " << i << " " << splits[i] << endl;
+            int max = 0;
+            for (it = getTokens_list().begin(); it != getTokens_list().end(); ++it) {
+                cout << "Running token:" << it->token_name << endl;
+                int lex_size = match(it->reg, splits[i], start);
+                if (lex_size > max) {
+                    max = lex_size;
+                    lex = it->token_name;
+                }
             }
+            if (max == 0) {
+                cout << "ERROR";
+                return;
+            }
+            cout << "Final token :" << lex << " , " << splits[i].substr(start, max) << endl;
+            start += max;
         }
-        if(max == 0){
-            cout << "ERROR";
-            return;
-        }
-        cout << "Final token :" << lex << " " << input_string.substr(start, max) << endl;
-        start += max;
     }
 }
 
@@ -351,11 +361,12 @@ const set<token_reg> &myLexicalAnalyzer::getTokens_list() const {
     return tokens_list;
 }
 
-void myLexicalAnalyzer::print(RegNode * r){
-    if(r->first_neighbor != nullptr && r->second_neighbor != nullptr){
-        cout << "first label:" << r->first_label << endl;
-        cout << "second label:" << r->second_label << endl;
-        myLexicalAnalyzer::print(r->first_neighbor);
-        myLexicalAnalyzer::print(r->first_neighbor);
+vector<string> myLexicalAnalyzer::split(string s, char delimit) {
+    vector<string> temp;
+    stringstream ss(s); // Turn the string into a stream.
+    string t;
+    while(getline(ss, t, delimit)) {
+        temp.push_back(t);
     }
+    return temp;
 }

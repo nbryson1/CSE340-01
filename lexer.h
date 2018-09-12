@@ -94,7 +94,7 @@ public:
     void setInput_string(const std::string &input_string);
     void setTokens_list(const token_reg &token);
     const std::set<token_reg> &getTokens_list() const;
-    void print(RegNode * reg);
+    std::vector<std::string> split(std::string str, char delimiter);
 
 private:
     std::set<token_reg> tokens_list;
