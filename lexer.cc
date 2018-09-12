@@ -265,10 +265,10 @@ set<RegNode> myLexicalAnalyzer::match_one_char(set<RegNode> S, char c){
     set<RegNode> S1 ;
     set<RegNode>::iterator it;
     for (it = S.begin(); it != S.end(); ++it) {
-        if(it->first_label == c && S1.find(*it->first_neighbor) == S1.end()){
+        if(it->first_label == c && !checkNode(S1, it->first_neighbor)){
             S1.insert(*it->first_neighbor);
         }
-        if(it->second_label == c && S1.find(*it->second_neighbor) == S1.end()){
+        if(it->second_label == c && !checkNode(S1, it->second_neighbor)){
             S1.insert(*it->second_neighbor);
         }
     }
@@ -281,44 +281,82 @@ set<RegNode> myLexicalAnalyzer::match_one_char(set<RegNode> S, char c){
         changed = false;
         for (it = S1.begin(); it != S1.end(); ++it) {
             S2.insert(*it);
-            if(it->first_label == '_' && S2.find(*it->first_neighbor) == S2.end()){
-                S2.insert(*it->first_neighbor);
+            set<RegNode>::iterator ik;
+            for (ik = S2.begin(); ik != S2.end(); ++ik)
+            {
+//                cout << ik->id << endl;
             }
-            if(it->second_label == '_' && S2.find(*it->second_neighbor) == S2.end()){
+//            cout << "ID-Label:" << it->id << endl;
+            if(it->first_label == '_' && !checkNode(S2, it->first_neighbor)){
+                S2.insert(*it->first_neighbor);
+//                cout << "ID" << it->first_neighbor->id << endl;
+//                cout << "S2 size:" << S2.size() << endl;
+                set<RegNode>::iterator ik;
+                for (ik = S2.begin(); ik != S2.end(); ++ik)
+                {
+//                    cout << ik->id << endl;
+                }
+            }
+            if(it->second_label == '_' && !checkNode(S2, it->second_neighbor)){
                 S2.insert(*it->second_neighbor);
             }
         }
-        if(S1 != S2){
+        if(!compare_set(S1, S2)){
             changed = true;
             S1.insert(S2.begin(), S2.end());
             S2.clear();
         }
     }
+//    cout << "S1 size:" << S1.size() << endl;
     return S1;
 }
 
 int myLexicalAnalyzer::match(REG * reg, string input, int position){
     set<RegNode> So;
     So.insert(*reg->start);
-    cout << "So size:" << So.size() << endl;
-    cout << "Char:_" << endl;
+//    cout << reg->start << endl;
+//    cout << "So size:" << So.size() << endl;
+    std::set<RegNode>::iterator it;
+    for (it = So.begin(); it != So.end(); ++it)
+    {
+//        cout << it->id << endl;
+    }
+//    cout << "Char:_" << endl;
     set<RegNode> Sa;
     Sa = match_one_char(So, '_');
+    Sa.insert(So.begin(), So.end());
     So.insert(Sa.begin(), Sa.end());
-    cout << "So size:" << So.size() << endl;
+//    cout << "Comparison:" << compare_set(Sa, So) << endl;
+//    cout << "So size:" << So.size() << endl;
+    for (it = So.begin(); it != So.end(); ++it)
+    {
+//        cout << it->id << endl;
+    }
     int size = 0;
+    int m = 0;
     for (std::string::iterator it = input.begin() + position, end = input.end(); it != end; ++it)
     {
         size ++;
-        cout << "Char:" << *it << endl;
+//        cout << "Char:" << *it << endl;
         So = match_one_char(So, *it);
-        cout << "So size:" << So.size() << endl;
-        if(So.find(*reg->accept) != So.end()){
-            cout << "Return" << endl;
-            return size;
+//        cout << "So size:" << So.size() << endl;
+        std::set<RegNode>::iterator ik;
+        for (ik = So.begin(); ik != So.end(); ++ik)
+        {
+//            cout << ik->id << endl;
         }
+        if(So.find(*reg->accept) != So.end() ){
+            m = size;
+//            cout << "Return" << endl;
+//            return size;
+        }
+//        if(!(So.find(*reg->accept) != So.end()) && matched){
+//            size --;
+//            return size;
+//        }
+
     }
-    return 0;
+    return m;
 }
 
 void myLexicalAnalyzer::my_getToken(){
@@ -329,10 +367,10 @@ void myLexicalAnalyzer::my_getToken(){
     for(int i =0; i < splits.size(); i++) {
         start = 0;
         while (start != splits[i].size()) {
-            cout << "Split " << i << " " << splits[i] << endl;
+//            cout << "Split " << i << " " << splits[i] << endl;
             int max = 0;
             for (it = getTokens_list().begin(); it != getTokens_list().end(); ++it) {
-                cout << "Running token:" << it->token_name << endl;
+//                cout << "Running token:" << it->token_name << endl;
                 int lex_size = match(it->reg, splits[i], start);
                 if (lex_size > max) {
                     max = lex_size;
@@ -343,7 +381,7 @@ void myLexicalAnalyzer::my_getToken(){
                 cout << "ERROR";
                 return;
             }
-            cout << "Final token :" << lex << " , " << splits[i].substr(start, max) << endl;
+            cout << lex << " , \"" << splits[i].substr(start, max) << "\"" << endl;
             start += max;
         }
     }
@@ -369,4 +407,58 @@ vector<string> myLexicalAnalyzer::split(string s, char delimit) {
         temp.push_back(t);
     }
     return temp;
+}
+
+int myLexicalAnalyzer::counter;
+
+int myLexicalAnalyzer::getCounter() const {
+    counter ++;
+    return counter;
+}
+
+void myLexicalAnalyzer::setCounter(int count) {
+    counter = count;
+}
+
+bool myLexicalAnalyzer::checkNode(set<RegNode> S, RegNode * r){
+    set<RegNode>::iterator i;
+    for (i = S.begin(); i != S.end(); ++i)
+    {
+        if(r->id == i->id){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool myLexicalAnalyzer::compare_set(set<RegNode> S1, set<RegNode> S2){
+//    cout << "Compare1:" << S1.size() << endl;
+//    cout << "Compare2:" << S2.size() << endl;
+    if(S1.size() != S2.size()){
+        return false;
+    }
+    set<RegNode>::iterator i;
+    int s1[S1.size()];
+    int s2[S2.size()];
+    int j = 0, k= 0;
+    for (i = S1.begin(); i != S1.end(); ++i)
+    {
+        s1[j] = i->id;
+        j++;
+    }
+    set<RegNode>::iterator t;
+    for (i = S2.begin(); i != S2.end(); ++i)
+    {
+        s2[k] = i->id;
+        k++;
+    }
+    sort(s1, s1+j);
+    sort(s2, s2+k);
+
+    for (int m=0; m<k; m++) {
+        if (s1[m] != s2[m]) {
+            return false;
+        }
+    }
+    return true;
 }

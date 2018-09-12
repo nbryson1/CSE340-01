@@ -58,7 +58,7 @@ void Parser::parse_input()
     if(temp.at(temp.size() - 1) == ' '){
         temp = temp.substr(0, temp.size() - 1);
     }
-    cout << "Input string :" << temp << endl;
+//    cout << "Input string :" << temp << endl;
     mylexer.setInput_string(temp);
 }
 
@@ -66,6 +66,7 @@ void Parser::parse_input()
 void Parser::parse_tokens_section()
 {
     // tokens_section -> token_list HASH
+    mylexer.setCounter(0);
     parse_token_list();
     expect(HASH);
 }
@@ -104,6 +105,16 @@ void Parser::parse_token()
     tok.token_name = t.lexeme;
     tok.reg = reg;
     mylexer.setTokens_list(tok);
+//    cout << endl << "-------" << endl;
+//    cout << "Labels1:" << reg->start->id << endl;
+//    cout << "Labels2:" << reg->start->first_neighbor->id << endl;
+//    cout << "Labels3:" << reg->start->second_neighbor->id << endl;
+//    cout << "Labels4:" << reg->start->first_neighbor->first_neighbor->id << endl;
+//    cout << "Labels5:" << reg->start->second_neighbor->first_neighbor->id << endl;
+//    cout << "Labels6:" << reg->start->first_neighbor->first_neighbor->first_neighbor->id << endl;
+//    cout << "Labels7:" << reg->start->second_neighbor->first_neighbor->first_neighbor->first_neighbor->id << endl;
+//    cout << "Labels8:" << reg->accept->id << endl;
+//    cout << "-------" << endl;
 }
 
 
@@ -120,8 +131,10 @@ struct REG * Parser::parse_expr()
         // expr -> CHAR
         REG * reg = (REG *)malloc(sizeof(* reg));
         RegNode * regNode1 = (RegNode *)malloc(sizeof(* regNode1));
+        regNode1->id = mylexer.getCounter();
         regNode1->first_label = t.lexeme.at(0);
         RegNode * regNode2 = (RegNode *)malloc(sizeof(* regNode2));
+        regNode2->id = mylexer.getCounter();
         regNode1->first_neighbor = regNode2;
         reg->start = regNode1;
         reg->accept = regNode2;
@@ -131,8 +144,10 @@ struct REG * Parser::parse_expr()
         // expr -> UNDERSCORE
         REG * reg = (REG *)malloc(sizeof(* reg));
         RegNode * regNode1 = (RegNode *)malloc(sizeof(* regNode1));
+        regNode1->id = mylexer.getCounter();
         regNode1->first_label = '_';
         RegNode * regNode2 = (RegNode *)malloc(sizeof(* regNode2));
+        regNode2->id = mylexer.getCounter();
         regNode1->first_neighbor = regNode2;
         reg->start = regNode1;
         reg->accept = regNode2;
@@ -157,11 +172,13 @@ struct REG * Parser::parse_expr()
             }
             else{
                 RegNode * start = (RegNode *)malloc(sizeof(* start));
+                start->id = mylexer.getCounter();
                 start->first_label = '_';
                 start->second_label = '_';
                 start->first_neighbor = reg1->start;
                 start->second_neighbor = reg2->start;
                 RegNode * accept = (RegNode *)malloc(sizeof(* accept));
+                accept->id = mylexer.getCounter();
                 reg1->accept->first_label = '_';
                 reg1->accept->first_neighbor = accept;
                 reg2->accept->first_label = '_';
@@ -174,10 +191,12 @@ struct REG * Parser::parse_expr()
         else if(t2.token_type == STAR)
         {
             RegNode * start = (RegNode *)malloc(sizeof(* start));
+            start->id = mylexer.getCounter();
             start->first_label = '_';
             start->second_label = '_';
             start->first_neighbor = reg1->start;
             RegNode * accept = (RegNode *)malloc(sizeof(* accept));
+            accept->id = mylexer.getCounter();
             start->second_neighbor = accept;
             reg1->accept->first_label = '_';
             reg1->accept->first_neighbor = accept;

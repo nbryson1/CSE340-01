@@ -24,6 +24,7 @@ typedef struct RegNode{
     char first_label;
     RegNode * second_neighbor;
     char second_label;
+    int id;
     RegNode(){
         first_label = '\0';
         second_label = '\0';
@@ -71,11 +72,11 @@ class LexicalAnalyzer {
 };
 
 static bool operator<(const RegNode& n1, const RegNode& n2) {
-    return n1.first_label < n2.first_label;
+    return n1.id < n2.id;
 }
 
 static bool operator==(const RegNode& n1, const RegNode& n2) {
-    return n1.first_label == n2.first_label;
+    return n1.id == n2.id;
 }
 
 static bool operator<(const token_reg& n1, const token_reg& n2) {
@@ -94,11 +95,17 @@ public:
     void setInput_string(const std::string &input_string);
     void setTokens_list(const token_reg &token);
     const std::set<token_reg> &getTokens_list() const;
-    std::vector<std::string> split(std::string str, char delimiter);
+    std::vector<std::string> split(std::string str, char delimit);
+    int getCounter() const;
+    static void setCounter(int counter);
+    bool checkNode(std::set<RegNode> S, RegNode * r);
+    bool compare_set(std::set<RegNode> S1, std::set<RegNode> S2);
+
 
 private:
     std::set<token_reg> tokens_list;
     std::string input_string;
+    static int counter;
 
 };
 
