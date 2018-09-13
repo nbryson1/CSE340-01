@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <sstream>
 #include "lexer.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -372,10 +373,11 @@ void myLexicalAnalyzer::my_getToken(){
             vector<token_reg> tokens = getTokens_list();
             for (it = tokens.begin(); it != tokens.end(); ++it) {
 //                cout << "Running token:" << it->token_name << endl;
-                int lex_size = match(it->reg, splits[i], start);
+                token_reg& reg = *it;
+                int lex_size = match(reg.reg, splits[i], start);
                 if (lex_size > max) {
                     max = lex_size;
-                    lex = it->token_name;
+                    lex = reg.token_name;
                 }
             }
             if (max == 0) {

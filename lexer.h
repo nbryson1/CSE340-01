@@ -28,8 +28,8 @@ typedef struct RegNode{
     RegNode(){
         first_label = '\0';
         second_label = '\0';
-        first_neighbor = nullptr;
-        second_neighbor = nullptr;
+        first_neighbor = NULL;
+        second_neighbor = NULL;
     }
 } RegNode;
 

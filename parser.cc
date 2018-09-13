@@ -215,7 +215,7 @@ struct REG * Parser::parse_expr()
     {
         syntax_error();
     }
-    return nullptr;
+    return NULL;
 }
 
 
