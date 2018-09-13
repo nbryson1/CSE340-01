@@ -75,17 +75,17 @@ static bool operator<(const RegNode& n1, const RegNode& n2) {
     return n1.id < n2.id;
 }
 
-static bool operator==(const RegNode& n1, const RegNode& n2) {
-    return n1.id == n2.id;
-}
+//static bool operator==(const RegNode& n1, const RegNode& n2) {
+//    return n1.id == n2.id;
+//}
 
-static bool operator<(const token_reg& n1, const token_reg& n2) {
-    return n1.token_name < n2.token_name;
-}
-
-static bool operator==(const token_reg& n1, const token_reg& n2) {
-    return n1.token_name == n2.token_name;
-}
+//static bool operator<(const token_reg& n1, const token_reg& n2) {
+//    return n1.token_name < n2.token_name;
+//}
+//
+//static bool operator==(const token_reg& n1, const token_reg& n2) {
+//    return n1.token_name == n2.token_name;
+//}
 
 class myLexicalAnalyzer {
 public:
@@ -94,7 +94,7 @@ public:
     std::set<RegNode> match_one_char(std::set<RegNode> S, char c);
     void setInput_string(const std::string &input_string);
     void setTokens_list(const token_reg &token);
-    const std::set<token_reg> &getTokens_list() const;
+    const std::vector<token_reg> &getTokens_list() const;
     std::vector<std::string> split(std::string str, char delimit);
     int getCounter() const;
     static void setCounter(int counter);
@@ -103,7 +103,7 @@ public:
 
 
 private:
-    std::set<token_reg> tokens_list;
+    std::vector<token_reg> tokens_list;
     std::string input_string;
     static int counter;
 

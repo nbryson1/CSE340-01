@@ -361,7 +361,7 @@ int myLexicalAnalyzer::match(REG * reg, string input, int position){
 
 void myLexicalAnalyzer::my_getToken(){
     int start = 0;
-    set<token_reg>::iterator it;
+    vector<token_reg>::iterator it;
     string lex = "";
     vector<string> splits = split(input_string, ' ');
     for(int i =0; i < splits.size(); i++) {
@@ -369,7 +369,8 @@ void myLexicalAnalyzer::my_getToken(){
         while (start != splits[i].size()) {
 //            cout << "Split " << i << " " << splits[i] << endl;
             int max = 0;
-            for (it = getTokens_list().begin(); it != getTokens_list().end(); ++it) {
+            vector<token_reg> tokens = getTokens_list();
+            for (it = tokens.begin(); it != tokens.end(); ++it) {
 //                cout << "Running token:" << it->token_name << endl;
                 int lex_size = match(it->reg, splits[i], start);
                 if (lex_size > max) {
@@ -392,10 +393,10 @@ void myLexicalAnalyzer::setInput_string(const string &input_string) {
 }
 
 void myLexicalAnalyzer::setTokens_list(const token_reg &token) {
-    myLexicalAnalyzer::tokens_list.insert(token);
+    myLexicalAnalyzer::tokens_list.push_back(token);
 }
 
-const set<token_reg> &myLexicalAnalyzer::getTokens_list() const {
+const vector<token_reg> &myLexicalAnalyzer::getTokens_list() const {
     return tokens_list;
 }
 
